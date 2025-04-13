@@ -4,7 +4,7 @@
 # Copyright (c) [2025] [@ravindu644]
 ####################################
 
-set -e -x
+set -e
 
 export WDIR="$(pwd)"
 export RECOVERY_LINK="$1"

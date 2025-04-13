@@ -6,7 +6,8 @@
 
 set -e
 
-export WDIR="$(pwd)"
+export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export WDIR="${SCRIPT_DIR}"
 export RECOVERY_LINK="$1"
 export MODEL="$2"
 mkdir -p "recovery" "unpacked" "output"

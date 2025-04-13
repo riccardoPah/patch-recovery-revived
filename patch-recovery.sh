@@ -114,6 +114,9 @@ hexpatch_recovery_image(){
 	${MAGISKBOOT} hexpatch system/bin/recovery b4f082ee28b1701c b4f082ee28b970c1
 	${MAGISKBOOT} hexpatch system/bin/recovery 9ef0f4ec28b1701c 9ef0f4ec28b9701c
 
+	${MAGISKBOOT} hexpatch system/bin/recovery 9ef00ced28b1701c 9ef00ced28b9701c
+	${MAGISKBOOT} hexpatch system/bin/recovery 2001597ae0000054 2001597ae1000054   
+
     set -e
 
     cd "${WDIR}/"

@@ -38,4 +38,14 @@ unarchive_recovery(){
     [[ "$FILE" == *.lz4 ]] && lz4 -d "$FILE" "${FILE%.lz4}" && rm "$FILE"
     mv "$(ls *.img)" "recovery.img"
     cd "${WDIR}/"
+
+    export RECOVERY_FILE="${WDIR}/recovery/recovery.img"
+}
+
+# Extract recovery.img
+extract_recovery_image(){
+    cd "${WDIR}/unpacked/"
+	${MAGISKBOOT} unpack ${RECOVERY_FILE}
+	${MAGISKBOOT} cpio ramdisk.cpio extract
+    cd "${WDIR}/"
 }

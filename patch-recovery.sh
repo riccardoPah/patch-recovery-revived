@@ -68,7 +68,12 @@ unarchive_recovery(){
     local FILE=$(ls)
     [[ "$FILE" == *.zip ]] && unzip "$FILE" && rm "$FILE"
     [[ "$FILE" == *.lz4 ]] && lz4 -d "$FILE" "${FILE%.lz4}" && rm "$FILE"
-    mv "$(ls *.img)" "recovery.img"
+
+    # Only rename if recovery.img doesn't exists
+    if [ ! -f recovery.img ]; then
+        mv "$(ls *.img)" "recovery.img"
+    fi
+
     cd "${WDIR}/"
 
     export RECOVERY_FILE="${WDIR}/recovery/recovery.img"

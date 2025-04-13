@@ -11,6 +11,7 @@ export RECOVERY_LINK="$1"
 export MODEL="$2"
 mkdir -p "recovery" "unpacked" "output"
 source "${WDIR}/binaries/colors"
+source "${WDIR}/binaries/gofile.sh"
 
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
@@ -147,7 +148,12 @@ create_tar(){
     tar -cvf "${MODEL}-Fastbootd-patched-recovery.tar" recovery.img.lz4 && \
         rm recovery.img.lz4
 
-    echo -e "\n${LIGHT_YELLOW}[INFO] Created ODIN-flashable tar:${RESET} ${BOLD}${PWD}/${MODEL}-Fastbootd-patched-recovery.tar${RESET}\n"        
+    echo -e "\n${LIGHT_YELLOW}[INFO] Created ODIN-flashable tar:${RESET} ${BOLD}${PWD}/${MODEL}-Fastbootd-patched-recovery.tar${RESET}\n"
+
+    # Optional GoFile upload
+    if [[ "$GOFILE" == "1" ]]; then
+        upload_to_gofile "${MODEL}-Fastbootd-patched-recovery.tar"
+    fi
     
     cd "${WDIR}/"
 }

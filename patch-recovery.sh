@@ -10,6 +10,7 @@ export WDIR="$(pwd)"
 export RECOVERY_LINK="$1"
 export MODEL="$2"
 mkdir -p "recovery" "unpacked" "output"
+source "${WDIR}/binaries/colors"
 
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
@@ -22,21 +23,38 @@ MAGISKBOOT="${WDIR}/binaries/magiskboot"
 
 # Define the usage
 usage() {
-  echo -e "Usage: ./patch-recovery.sh <URL/Path> <Model Number>"
+  echo -e "${BOLD}${RED}Usage:${RESET} ${BOLD}./patch-recovery.sh <URL/Path> <Model Number>${RESET}"
   exit 1
 }
 
 [[ -z "$RECOVERY_LINK" || -z "$MODEL" ]] && usage
 
+# Welcome banner, Install requirements if not installed
+init_patch_recovery(){
+    echo -e "\n${BLUE}patch-recovery-revived - By @ravindu644${RESET}\n"
+
+    # Install the requirements for building the kernel when running the script for the first time
+    if [ ! -f ".requirements" ]; then
+        echo -e "\n\t${UNBOLD_GREEN}Installing requirements...${RESET}\n"
+        {
+            sudo apt update
+            sudo apt install -y lz4
+        } && touch .requirements
+    fi
+}
+
 # Downloading/copying the recovery
 download_recovery(){
     if [[ "${RECOVERY_LINK}" =~ ^https?:// ]]; then
+
+    echo -e "${LIGHT_YELLOW}[INFO] Downloading:${RESET} ${BOLD}${RECOVERY_LINK}${RESET}\n"
+
     curl -L "${RECOVERY_LINK}" -o "${WDIR}/recovery/$(basename "${RECOVERY_LINK}")"
     elif [ -f "${RECOVERY_LINK}" ]; then
     cp "${RECOVERY_LINK}" "${WDIR}/recovery/"
     else
-    echo -e "Invalid input: not a URL or file.\n"
-    echo -e "If you entered a URL, make sure it begins with 'http://' or 'https://'"
+    echo -e "${BOLD}${RED}Invalid input: not a URL or file.${RESET}\n"
+    echo -e "${BOLD}${RED}If you entered a URL, make sure it begins with 'http://' or 'https://'${RESET}\n"
     exit 1
     fi
 }
@@ -57,6 +75,9 @@ unarchive_recovery(){
 # Extract recovery.img
 extract_recovery_image(){
     cd "${WDIR}/unpacked/"
+
+    echo -e "${LIGHT_YELLOW}[INFO] Extracting:${RESET} ${BOLD}${RECOVERY_FILE}${RESET}\n"
+
 	${MAGISKBOOT} unpack ${RECOVERY_FILE}
 	${MAGISKBOOT} cpio ramdisk.cpio extract
     cd "${WDIR}/"
@@ -65,6 +86,8 @@ extract_recovery_image(){
 # Hex patch the "recovery" binary to get fastbootd mode back
 hexpatch_recovery_image(){
     cd "${WDIR}/unpacked/"
+
+    echo -e "${LIGHT_YELLOW}[INFO] Hex-patching:${RESET} ${BOLD}system/bin/recovery${RESET}\n"
 
 	${MAGISKBOOT} hexpatch system/bin/recovery e10313aaf40300aa6ecc009420010034 e10313aaf40300aa6ecc0094 # 20 01 00 35
 	${MAGISKBOOT} hexpatch system/bin/recovery eec3009420010034 eec3009420010035
@@ -88,6 +111,9 @@ repack_recovery_image(){
     cd "${WDIR}/unpacked/"
 
     ${MAGISKBOOT}  cpio ramdisk.cpio 'add 0755 system/bin/recovery system/bin/recovery'
+
+    echo -e "${LIGHT_YELLOW}[INFO] Repacking to:${RESET} ${BOLD}${WDIR}/output/patched-recovery.img${RESET}\n"
+
 	${MAGISKBOOT}  repack ${RECOVERY_FILE} "${WDIR}/output/patched-recovery.img"
 
     cd "${WDIR}/"
@@ -95,6 +121,9 @@ repack_recovery_image(){
 
 # Sign the patched-recovery.img with Google's RSA private test key
 sign_recovery_image(){
+
+    echo -e "${LIGHT_YELLOW}[INFO] Signing with Google's RSA private test key:${RESET} ${BOLD}${WDIR}/output/patched-recovery.img${RESET}\n"
+
     ${AVBTOOL} \
         add_hash_footer \
         --partition_name recovery \
@@ -114,6 +143,8 @@ create_tar(){
 
     tar -cvf "${MODEL}-Fastbootd-patched-recovery.tar" recovery.img.lz4 && \
         rm recovery.img.lz4
+
+    echo -e "\n${LIGHT_YELLOW}[INFO] Created ODIN-flashable tar:${RESET} ${BOLD}${PWD}/${MODEL}-Fastbootd-patched-recovery.tar${RESET}\n"        
     
     cd "${WDIR}/"
 }
@@ -123,6 +154,7 @@ cleanup_source(){
     rm -rf "${WDIR}/unpacked/"*    
 }
 
+init_patch_recovery
 download_recovery
 unarchive_recovery
 extract_recovery_image

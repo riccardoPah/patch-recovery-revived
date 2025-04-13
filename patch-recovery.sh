@@ -8,10 +8,11 @@ set -e -x
 
 export WDIR="$(pwd)"
 export RECOVERY_LINK="$1"
-mkdir -p "${WDIR}/recovery"
+mkdir -p "recovery" "unpacked" "output"
 
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
+rm -rf "${WDIR}/unpacked/"*
 
 # Define magiskboot and signing key paths
 AVB_KEY="${WDIR}/signing-keys/testkey_rsa2048.pem"
@@ -67,6 +68,16 @@ hexpatch_recovery_image(){
 	${MAGISKBOOT} hexpatch system/bin/recovery 27f02eeb30b1681c 27f02eeb30b9681c
 	${MAGISKBOOT} hexpatch system/bin/recovery b4f082ee28b1701c b4f082ee28b970c1
 	${MAGISKBOOT} hexpatch system/bin/recovery 9ef0f4ec28b1701c 9ef0f4ec28b9701c
+
+    cd "${WDIR}/"
+}
+
+# Repack the fastbootd patched recovery image
+repack_recovery_image(){
+    cd "${WDIR}/unpacked/"
+
+    ${MAGISKBOOT}  cpio ramdisk.cpio 'add 0755 system/bin/recovery system/bin/recovery'
+	${MAGISKBOOT}  repack ${RECOVERY_FILE} "${WDIR}/output/patched-recovery.img"
 
     cd "${WDIR}/"
 }

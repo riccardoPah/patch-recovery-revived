@@ -8,6 +8,7 @@ set -e -x
 
 export WDIR="$(pwd)"
 export RECOVERY_LINK="$1"
+export MODEL="$2"
 mkdir -p "recovery" "unpacked" "output"
 
 # Clean-up is required
@@ -18,6 +19,14 @@ rm -rf "${WDIR}/unpacked/"*
 AVB_KEY="${WDIR}/signing-keys/testkey_rsa2048.pem"
 AVBTOOL="${WDIR}/binaries/avbtool"
 MAGISKBOOT="${WDIR}/binaries/magiskboot"
+
+# Define the usage
+usage() {
+  echo -e "Usage: ./patch-recovery.sh <URL/Path> <Model Number>"
+  exit 1
+}
+
+[[ -z "$RECOVERY_LINK" || -z "$MODEL" ]] && usage
 
 # Downloading/copying the recovery
 download_recovery(){
@@ -93,4 +102,16 @@ sign_recovery_image(){
         --image "${WDIR}/output/patched-recovery.img" \
         --key ${AVB_KEY} \
         --algorithm SHA256_RSA2048
+}
+
+# Create an ODIN-flashable tar
+create_tar(){
+    cd "${WDIR}/output/"
+
+    mv patched-recovery.img recovery.img && \
+        lz4 -B6 --content-size recovery.img recovery.img.lz4 && \
+        rm recovery.img
+
+    tar -cvf "${MODEL}-Fastbootd-patched-recovery.tar" recovery.img.lz4 && \
+        rm recovery.img.lz4
 }

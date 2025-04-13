@@ -13,6 +13,10 @@ mkdir -p "${WDIR}/recovery"
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
 
+# Define magiskboot and signing key paths
+AVB_KEY="${WDIR}/signing-keys/testkey_rsa2048.pem"
+MAGISKBOOT="${WDIR}/binaries/magiskboot"
+
 # Downloading/copying the recovery
 download_recovery(){
     if [[ "${RECOVERY_LINK}" =~ ^https?:// ]]; then

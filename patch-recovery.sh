@@ -122,3 +122,12 @@ cleanup_source(){
     rm -rf "${WDIR}/recovery/"*
     rm -rf "${WDIR}/unpacked/"*    
 }
+
+download_recovery
+unarchive_recovery
+extract_recovery_image
+hexpatch_recovery_image
+repack_recovery_image
+sign_recovery_image
+create_tar
+cleanup_source

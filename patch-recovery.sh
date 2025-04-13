@@ -61,6 +61,8 @@ download_recovery(){
 
 # Check if the downloaded/copied file an archive
 unarchive_recovery(){
+
+    set -x 
     cd "${WDIR}/recovery/"
     local FILE=$(ls)
     [[ "$FILE" == *.zip ]] && unzip "$FILE" && rm "$FILE"
@@ -70,6 +72,7 @@ unarchive_recovery(){
 
     export RECOVERY_FILE="${WDIR}/recovery/recovery.img"
     export RECOVERY_SIZE=$(stat -c%s "${WDIR}/recovery/recovery.img")
+    set +x
 }
 
 # Extract recovery.img

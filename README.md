@@ -1,6 +1,13 @@
 # Patch-Recovery-Revived
 
-The only working `patch-recovery` tool that ever lived to patch Samsung's recovery images to enable **fastbootd mode**. 
+The only working `patch-recovery` tool that ever lived to patch Samsung's recovery images to enable **fastbootd mode**.
+
+<details>
+  <summary>Click to view image</summary>
+
+  <img src="./resources/1.jpg" alt="Preview" width="600"/>
+
+</details>
 
 ## Features
 

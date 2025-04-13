@@ -14,8 +14,9 @@ mkdir -p "recovery" "unpacked" "output"
 rm -rf "${WDIR}/recovery/"*
 rm -rf "${WDIR}/unpacked/"*
 
-# Define magiskboot and signing key paths
+# Define magiskboot,avbtool and signing key paths
 AVB_KEY="${WDIR}/signing-keys/testkey_rsa2048.pem"
+AVBTOOL="${WDIR}/binaries/avbtool"
 MAGISKBOOT="${WDIR}/binaries/magiskboot"
 
 # Downloading/copying the recovery
@@ -41,6 +42,7 @@ unarchive_recovery(){
     cd "${WDIR}/"
 
     export RECOVERY_FILE="${WDIR}/recovery/recovery.img"
+    export RECOVERY_SIZE=$(stat -c%s "${WDIR}/recovery/recovery.img")
 }
 
 # Extract recovery.img
@@ -80,4 +82,15 @@ repack_recovery_image(){
 	${MAGISKBOOT}  repack ${RECOVERY_FILE} "${WDIR}/output/patched-recovery.img"
 
     cd "${WDIR}/"
+}
+
+# Sign the patched-recovery.img with Google's RSA private test key
+sign_recovery_image(){
+    ${AVBTOOL} \
+        add_hash_footer \
+        --partition_name recovery \
+        --partition_size ${RECOVERY_SIZE} \
+        --image "${WDIR}/output/patched-recovery.img" \
+        --key ${AVB_KEY} \
+        --algorithm SHA256_RSA2048
 }

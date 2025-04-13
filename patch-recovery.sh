@@ -98,6 +98,8 @@ hexpatch_recovery_image(){
 
     echo -e "${LIGHT_YELLOW}[INFO] Hex-patching:${RESET} ${BOLD}system/bin/recovery${RESET}\n"
 
+    set +x
+
 	${MAGISKBOOT} hexpatch system/bin/recovery e10313aaf40300aa6ecc009420010034 e10313aaf40300aa6ecc0094 # 20 01 00 35
 	${MAGISKBOOT} hexpatch system/bin/recovery eec3009420010034 eec3009420010035
 	${MAGISKBOOT} hexpatch system/bin/recovery 3ad3009420010034 3ad3009420010035
@@ -111,6 +113,8 @@ hexpatch_recovery_image(){
 	${MAGISKBOOT} hexpatch system/bin/recovery 27f02eeb30b1681c 27f02eeb30b9681c
 	${MAGISKBOOT} hexpatch system/bin/recovery b4f082ee28b1701c b4f082ee28b970c1
 	${MAGISKBOOT} hexpatch system/bin/recovery 9ef0f4ec28b1701c 9ef0f4ec28b9701c
+
+    set -x
 
     cd "${WDIR}/"
 }

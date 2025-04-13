@@ -116,7 +116,9 @@ hexpatch_recovery_image(){
 	${MAGISKBOOT} hexpatch system/bin/recovery 9ef0f4ec28b1701c 9ef0f4ec28b9701c
 
 	${MAGISKBOOT} hexpatch system/bin/recovery 9ef00ced28b1701c 9ef00ced28b9701c
-	${MAGISKBOOT} hexpatch system/bin/recovery 2001597ae0000054 2001597ae1000054   
+	${MAGISKBOOT} hexpatch system/bin/recovery 2001597ae0000054 2001597ae1000054
+
+    ${MAGISKBOOT} hexpatch system/bin/recovery 50860494f3031f2a 5086049433008052
 
     set -e
 

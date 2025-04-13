@@ -114,4 +114,11 @@ create_tar(){
 
     tar -cvf "${MODEL}-Fastbootd-patched-recovery.tar" recovery.img.lz4 && \
         rm recovery.img.lz4
+    
+    cd "${WDIR}/"
+}
+
+cleanup_source(){
+    rm -rf "${WDIR}/recovery/"*
+    rm -rf "${WDIR}/unpacked/"*    
 }

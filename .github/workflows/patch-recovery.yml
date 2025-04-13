@@ -24,7 +24,7 @@ jobs:
           
       - name: Running patch-recovery-revived
         run: |
-          bash patch-recovery.sh "${{ github.event.inputs.recovery_link }}" "${{ github.event.inputs.model }}"
+          GOFILE=1 bash patch-recovery.sh "${{ github.event.inputs.recovery_link }}" "${{ github.event.inputs.model }}"
       
       - name: Uploading Artifact
         uses: actions/upload-artifact@v4

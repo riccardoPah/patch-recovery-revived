@@ -12,7 +12,7 @@ on:
         required: true   
               
 jobs:
-  samloader-actions:
+  patch-recovery-revived:
     runs-on: ubuntu-latest
     permissions:
       contents: write    

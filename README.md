@@ -17,6 +17,12 @@ The only working `patch-recovery` tool that ever lived to patch Samsung's recove
 - Signs the patched recovery image with Google's RSA private test key.
 - Creates an ODIN-flashable `.tar` file for easy flashing.
 
+---
+
+If this tool didn’t enable the `fastbootd` mode, it means we need to find your exact `hex` byte sequence to enable it. To learn how to get those values, please refer to the guide on the ["how-to-find-patches"](./how-to-find-patches/) page.
+
+---
+
 ## Usage
 
 ### 🟢 GitHub Workflow

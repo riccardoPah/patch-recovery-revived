@@ -23,6 +23,30 @@ AVB_KEY="${WDIR}/signing-keys/testkey_rsa2048.pem"
 AVBTOOL="${WDIR}/binaries/avbtool"
 MAGISKBOOT="${WDIR}/binaries/magiskboot"
 
+# Define hex patches as an array of "search_pattern:replace_pattern" pairs
+declare -a HEX_PATCHES=(
+    "e10313aaf40300aa6ecc009420010034:e10313aaf40300aa6ecc0094"
+    "eec3009420010034:eec3009420010035"
+    "3ad3009420010034:3ad3009420010035"
+    "50c0009420010034:50c0009420010035"
+    "080109aae80000b4:080109aae80000b5"
+    "20f0a6ef38b1681c:20f0a6ef38b9681c"
+    "23f03aed38b1681c:23f03aed38b9681c"
+    "20f09eef38b1681c:20f09eef38b9681c"
+    "26f0ceec30b1681c:26f0ceec30b9681c"
+    "24f0fcee30b1681c:24f0fcee30b9681c"
+    "27f02eeb30b1681c:27f02eeb30b9681c"
+    "b4f082ee28b1701c:b4f082ee28b970c1"
+    "9ef0f4ec28b1701c:9ef0f4ec28b9701c"
+    "9ef00ced28b1701c:9ef00ced28b9701c"
+    "2001597ae0000054:2001597ae1000054"
+    "50860494f3031f2a:5086049433008052"
+
+    # One UI 7 - Galaxy A16 5G patches (40 byte sequence)
+    "ff4302d1fd7b04a9fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9:20008052c0035fd6fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9"
+    "ffc301d1fd7b05a9fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8:20008052c0035fd6fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8"
+)
+
 # Define the usage
 usage() {
   echo -e "${BOLD}${RED}Usage:${RESET} ${BOLD}./patch-recovery.sh <URL/Path> <Model Number>${RESET}"
@@ -93,39 +117,69 @@ extract_recovery_image(){
     cd "${WDIR}/"
 }
 
+# Function to apply hex patches to the recovery binary
+apply_hex_patches(){
+    local binary_file="$1"
+    local patches_applied=0
+    local total_patches=${#HEX_PATCHES[@]}
+    
+    echo -e "${LIGHT_YELLOW}[INFO] Applying hex patches to:${RESET} ${BOLD}${binary_file}${RESET}"
+    echo -e "${LIGHT_YELLOW}[INFO] Total patches to try:${RESET} ${BOLD}${total_patches}${RESET}\n"
+    
+    # Temporarily disable exit on error for individual patch attempts
+    set +e
+    
+    for patch in "${HEX_PATCHES[@]}"; do
+        # Split the patch string into search and replace patterns
+        local search_pattern="${patch%%:*}"
+        local replace_pattern="${patch##*:}"
+        
+        echo -e "${LIGHT_BLUE}[PATCH] Trying:${RESET} ${search_pattern} -> ${replace_pattern}"
+        
+        # Apply the patch and capture the exit code
+        ${MAGISKBOOT} hexpatch "${binary_file}" "${search_pattern}" "${replace_pattern}"
+        local patch_result=$?
+        
+        if [ $patch_result -eq 0 ]; then
+            echo -e "${LIGHT_GREEN}[SUCCESS] Patch applied successfully${RESET}\n"
+            ((patches_applied++))
+        else
+            echo -e "${LIGHT_RED}[SKIP] Pattern not found, skipping${RESET}\n"
+        fi
+    done
+    
+    # Re-enable exit on error
+    set -e
+    
+    echo -e "${LIGHT_YELLOW}[SUMMARY] Applied ${patches_applied}/${total_patches} patches${RESET}\n"
+    
+    # Return success if at least one patch was applied
+    if [ $patches_applied -gt 0 ]; then
+        echo -e "${LIGHT_GREEN}[INFO] Hex patching completed successfully${RESET}\n"
+        return 0
+    else
+        echo -e "${BOLD}${RED}[ERROR] No matching hex byte pattern found, aborting...${RESET}\n"
+        return 1
+    fi
+}
+
 # Hex patch the "recovery" binary to get fastbootd mode back
 hexpatch_recovery_image(){
     cd "${WDIR}/unpacked/"
-
-    echo -e "${LIGHT_YELLOW}[INFO] Hex-patching:${RESET} ${BOLD}system/bin/recovery${RESET}\n"
-
-    set +e
-
-	${MAGISKBOOT} hexpatch system/bin/recovery e10313aaf40300aa6ecc009420010034 e10313aaf40300aa6ecc0094 # 20 01 00 35
-	${MAGISKBOOT} hexpatch system/bin/recovery eec3009420010034 eec3009420010035
-	${MAGISKBOOT} hexpatch system/bin/recovery 3ad3009420010034 3ad3009420010035
-	${MAGISKBOOT} hexpatch system/bin/recovery 50c0009420010034 50c0009420010035
-	${MAGISKBOOT} hexpatch system/bin/recovery 080109aae80000b4 080109aae80000b5
-	${MAGISKBOOT} hexpatch system/bin/recovery 20f0a6ef38b1681c 20f0a6ef38b9681c
-	${MAGISKBOOT} hexpatch system/bin/recovery 23f03aed38b1681c 23f03aed38b9681c
-	${MAGISKBOOT} hexpatch system/bin/recovery 20f09eef38b1681c 20f09eef38b9681c
-	${MAGISKBOOT} hexpatch system/bin/recovery 26f0ceec30b1681c 26f0ceec30b9681c
-	${MAGISKBOOT} hexpatch system/bin/recovery 24f0fcee30b1681c 24f0fcee30b9681c
-	${MAGISKBOOT} hexpatch system/bin/recovery 27f02eeb30b1681c 27f02eeb30b9681c
-	${MAGISKBOOT} hexpatch system/bin/recovery b4f082ee28b1701c b4f082ee28b970c1
-	${MAGISKBOOT} hexpatch system/bin/recovery 9ef0f4ec28b1701c 9ef0f4ec28b9701c
-
-	${MAGISKBOOT} hexpatch system/bin/recovery 9ef00ced28b1701c 9ef00ced28b9701c
-	${MAGISKBOOT} hexpatch system/bin/recovery 2001597ae0000054 2001597ae1000054
-
-    ${MAGISKBOOT} hexpatch system/bin/recovery 50860494f3031f2a 5086049433008052
-
-    # One UI 7 - Galaxy A16 5G
-    ${MAGISKBOOT} hexpatch system/bin/recovery ff4302d1fd7b04a9fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9 20008052c0035fd6fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9
-    ${MAGISKBOOT} hexpatch system/bin/recovery ffc301d1fd7b05a9fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8 20008052c0035fd6fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8
-
-    set -e
-
+    
+    local recovery_binary="system/bin/recovery"
+    
+    if [ ! -f "${recovery_binary}" ]; then
+        echo -e "${BOLD}${RED}[ERROR] Recovery binary not found: ${recovery_binary}${RESET}\n"
+        exit 1
+    fi
+    
+    # Apply hex patches and check result
+    if ! apply_hex_patches "${recovery_binary}"; then
+        echo -e "${BOLD}${RED}[FATAL] Hex patching failed, cannot continue${RESET}\n"
+        exit 1
+    fi
+    
     cd "${WDIR}/"
 }
 

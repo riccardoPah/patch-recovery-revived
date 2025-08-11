@@ -14,15 +14,6 @@ mkdir -p "recovery" "unpacked" "output"
 source "${WDIR}/binaries/colors"
 source "${WDIR}/binaries/gofile.sh"
 
-# Source the hex patches database
-if [ -f "${WDIR}/hex-patches.sh" ]; then
-    source "${WDIR}/hex-patches.sh"
-    echo -e "${LIGHT_GREEN}[INFO] Loaded $(get_patch_count) hex patches from database${RESET}\n"
-else
-    echo -e "${BOLD}${RED}[ERROR] hex-patches.sh not found! Please ensure it exists in the script directory.${RESET}\n"
-    exit 1
-fi
-
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
 rm -rf "${WDIR}/unpacked/"*
@@ -55,6 +46,15 @@ init_patch_recovery(){
         } && touch .requirements
     fi
 }
+
+# Source the hex patches database
+if [ -f "${WDIR}/hex-patches.sh" ]; then
+    source "${WDIR}/hex-patches.sh"
+    echo -e "${BOLD}${MINT_GREEN}[INFO] Loaded $(get_patch_count) hex patches from database${RESET}\n"
+else
+    echo -e "${BOLD}${RED}[ERROR] hex-patches.sh not found! Please ensure it exists in the script directory.${RESET}\n"
+    exit 1
+fi
 
 # Downloading/copying the recovery
 download_recovery(){

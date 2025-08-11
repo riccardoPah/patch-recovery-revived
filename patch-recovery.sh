@@ -14,6 +14,15 @@ mkdir -p "recovery" "unpacked" "output"
 source "${WDIR}/binaries/colors"
 source "${WDIR}/binaries/gofile.sh"
 
+# Source the hex patches database
+if [ -f "${WDIR}/hex-patches.sh" ]; then
+    source "${WDIR}/hex-patches.sh"
+    echo -e "${LIGHT_GREEN}[INFO] Loaded $(get_patch_count) hex patches from database${RESET}\n"
+else
+    echo -e "${BOLD}${RED}[ERROR] hex-patches.sh not found! Please ensure it exists in the script directory.${RESET}\n"
+    exit 1
+fi
+
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
 rm -rf "${WDIR}/unpacked/"*
@@ -22,30 +31,6 @@ rm -rf "${WDIR}/unpacked/"*
 AVB_KEY="${WDIR}/signing-keys/testkey_rsa2048.pem"
 AVBTOOL="${WDIR}/binaries/avbtool"
 MAGISKBOOT="${WDIR}/binaries/magiskboot"
-
-# Define hex patches as an array of "search_pattern:replace_pattern" pairs
-declare -a HEX_PATCHES=(
-    "e10313aaf40300aa6ecc009420010034:e10313aaf40300aa6ecc0094"
-    "eec3009420010034:eec3009420010035"
-    "3ad3009420010034:3ad3009420010035"
-    "50c0009420010034:50c0009420010035"
-    "080109aae80000b4:080109aae80000b5"
-    "20f0a6ef38b1681c:20f0a6ef38b9681c"
-    "23f03aed38b1681c:23f03aed38b9681c"
-    "20f09eef38b1681c:20f09eef38b9681c"
-    "26f0ceec30b1681c:26f0ceec30b9681c"
-    "24f0fcee30b1681c:24f0fcee30b9681c"
-    "27f02eeb30b1681c:27f02eeb30b9681c"
-    "b4f082ee28b1701c:b4f082ee28b970c1"
-    "9ef0f4ec28b1701c:9ef0f4ec28b9701c"
-    "9ef00ced28b1701c:9ef00ced28b9701c"
-    "2001597ae0000054:2001597ae1000054"
-    "50860494f3031f2a:5086049433008052"
-
-    # One UI 7 - Galaxy A16 5G patches (40 byte sequence), Issue #4
-    "ff4302d1fd7b04a9fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ff:20008052c0035fd6fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ff"
-    "ffc301d1fd7b05a9fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8:20008052c0035fd6fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8"
-)
 
 # Define the usage
 usage() {

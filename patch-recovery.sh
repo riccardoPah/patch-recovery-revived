@@ -95,11 +95,13 @@ unarchive_recovery(){
 extract_recovery_image(){
     cd "${WDIR}/unpacked/"
 
-    echo -e "${LIGHT_YELLOW}[INFO] Extracting:${RESET} ${BOLD}${RECOVERY_FILE}${RESET}\n"
+    echo -e "\n${LIGHT_YELLOW}[INFO] Extracting:${RESET} ${BOLD}${RECOVERY_FILE}${RESET}\n"
 
 	${MAGISKBOOT} unpack ${RECOVERY_FILE}
 	${MAGISKBOOT} cpio ramdisk.cpio extract
     cd "${WDIR}/"
+
+    echo ""    
 }
 
 # Function to apply hex patches to the recovery binary
@@ -170,11 +172,12 @@ hexpatch_recovery_image(){
 
 # Repack the fastbootd patched recovery image
 repack_recovery_image(){
-    cd "${WDIR}/unpacked/"
 
+    cd "${WDIR}/unpacked/"
+    
     ${MAGISKBOOT}  cpio ramdisk.cpio 'add 0755 system/bin/recovery system/bin/recovery'
 
-    echo -e "${LIGHT_YELLOW}[INFO] Repacking to:${RESET} ${BOLD}${WDIR}/output/patched-recovery.img${RESET}\n"
+    echo -e "\n${LIGHT_YELLOW}[INFO] Repacking to:${RESET} ${BOLD}${WDIR}/output/patched-recovery.img${RESET}\n"
 
 	${MAGISKBOOT}  repack ${RECOVERY_FILE} "${WDIR}/output/patched-recovery.img"
 
@@ -183,8 +186,7 @@ repack_recovery_image(){
 
 # Sign the patched-recovery.img with Google's RSA private test key
 sign_recovery_image(){
-
-    echo -e "${LIGHT_YELLOW}[INFO] Signing with Google's RSA private test key:${RESET} ${BOLD}${WDIR}/output/patched-recovery.img${RESET}\n"
+    echo -e "\n${LIGHT_YELLOW}[INFO] Signing with Google's RSA private test key:${RESET} ${BOLD}${WDIR}/output/patched-recovery.img${RESET}\n"
 
     ${AVBTOOL} \
         add_hash_footer \
@@ -197,6 +199,7 @@ sign_recovery_image(){
 
 # Create an ODIN-flashable tar
 create_tar(){
+
     cd "${WDIR}/output/"
 
     mv patched-recovery.img recovery.img && \

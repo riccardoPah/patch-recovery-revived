@@ -33,7 +33,8 @@ declare -a HEX_PATCHES=(
     # Galaxy S25, Issue #7 (func. name: GetFastbootdPermission)
     "7abb0594e0031f2a:7abb059420008052"
 
-    # TO-DO: Issue #5
+    # TGalaxy S24, Issue #5
+    "86940494e0031f2a:8694049420008052"
     
     # Add more patches here as needed
     # Format: "search_pattern:replace_pattern"

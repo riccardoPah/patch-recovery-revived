@@ -11,13 +11,12 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WDIR="${SCRIPT_DIR}"
 export RECOVERY_LINK="$1"
 export MODEL="$2"
-mkdir -p "recovery" "unpacked" "output"
+mkdir -p "recovery" "output"
 source "${WDIR}/binaries/colors"
 source "${WDIR}/binaries/gofile.sh"
 
 # Clean-up is required
 rm -rf "${WDIR}/recovery/"*
-rm -rf "${WDIR}/unpacked/"*
 
 # Define magiskboot's, boot_editor's path and aliases
 export BOOT_EDITOR="${WDIR}/boot_editor_v15_r1/gradlew"

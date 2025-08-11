@@ -4,6 +4,7 @@
 # Copyright (c) [2025] [@ravindu644]
 ####################################
 
+shopt -s expand_aliases
 set -e
 
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -106,13 +107,13 @@ extract_recovery_image(){
     echo -e "\n${LIGHT_YELLOW}[INFO] Extracting:${RESET} ${BOLD}${RECOVERY_FILE}${RESET}\n"
 
     # Clean the previous work
-    r_clean
+    set +e ; r_clean >/dev/null 2>&1 ; set -e
 
     # Copied the file to the boot editor's path
     cp -ar $RECOVERY_FILE "$(dirname $BOOT_EDITOR)" 
 
     # Unpack
-    r_unpack
+    r_unpack >/dev/null 2>&1
 
     # Some hack to find the exact file to patch
     export PATCHING_TARGET=$(find . -wholename "*/system/bin/recovery" -exec realpath {} \; | head -n 1)
@@ -194,7 +195,7 @@ repack_recovery_image(){
 
     echo -e "\n${LIGHT_YELLOW}[INFO] Repacking to:${RESET} ${BOLD}${WDIR}/output/${IMAGE_NAME}${RESET}\n"
 
-    r_repack
+    r_repack >/dev/null 2>&1
 
 	mv -f "$(ls *.signed)" "${WDIR}/output/${IMAGE_NAME}"
 
@@ -225,7 +226,7 @@ create_tar(){
 cleanup_source(){
     rm -rf "${WDIR}/recovery/"*
 
-    cd "$(dirname $BOOT_EDITOR)" ; r_clean ; cd "${WDIR}"
+    cd "$(dirname $BOOT_EDITOR)" ; set +e ; r_clean >/dev/null 2>&1 ; set -e ; cd "${WDIR}"
 }
 
 init_patch_recovery

@@ -27,13 +27,13 @@ declare -a HEX_PATCHES=(
     "2001597ae0000054:2001597ae1000054"
     "50860494f3031f2a:5086049433008052"
     
-    # One UI 7 - Galaxy A16 5G patches, Issue #4 (func. name: GetFastbootdPermission)
+    # One UI 7 - Galaxy A16 5G patches, Issue #4
     "9b880494e0031f2a:9b88049420008052"
 
-    # Galaxy S25, Issue #7 (func. name: GetFastbootdPermission)
+    # Galaxy S25, Issue #7
     "7abb0594e0031f2a:7abb059420008052"
 
-    # TGalaxy S24, Issue #5
+    # Galaxy S24, Issue #5
     "86940494e0031f2a:8694049420008052"
     
     # Add more patches here as needed

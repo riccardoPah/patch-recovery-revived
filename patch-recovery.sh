@@ -103,7 +103,7 @@ unarchive_recovery(){
 extract_recovery_image(){
     cd "$(dirname $BOOT_EDITOR)"
 
-    echo -e "\n${LIGHT_YELLOW}[INFO] Extracting:${RESET} ${BOLD}${RECOVERY_FILE}${RESET}\n"
+    echo -e "\n${LIGHT_YELLOW}[INFO] Extracting:${RESET} ${BOLD}${RECOVERY_FILE}${RESET}"
 
     # Clean the previous work
     set +e ; r_clean >/dev/null 2>&1 ; set -e
@@ -117,9 +117,9 @@ extract_recovery_image(){
     # Some hack to find the exact file to patch
     export PATCHING_TARGET=$(find . -wholename "*/system/bin/recovery" -exec realpath {} \; | head -n 1)
     if [ -n "$PATCHING_TARGET" ]; then
-        echo -e "\n${GREEN}Found target: $(basename ${PATCHING_TARGET})${RESET}"
+        echo -e "\n${BOLD}${MINT_GREEN}[INFO] Found target:${RESET} ${BOLD}$(basename ${PATCHING_TARGET})${RESET}"
     else
-        echo -e "\n${RED}Error: target file not found for patching.${RESET}"
+        echo -e "\n${BOLD}${RED}Error: target file not found for patching.${RESET}"
         exit 1
     fi
 

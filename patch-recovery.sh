@@ -49,7 +49,7 @@ init_patch_recovery(){
         echo -e "\n\t${UNBOLD_GREEN}Installing requirements...${RESET}\n"
         {
             sudo apt update
-            sudo apt install -y lz4
+            sudo apt install -y lz4 git device-tree-compiler lz4 xz-utils zlib1g-dev openjdk-17-jdk gcc g++ python3 python-is-python3 p7zip-full android-sdk-libsparse-utils erofs-utils
         } && touch .requirements
     fi
 }

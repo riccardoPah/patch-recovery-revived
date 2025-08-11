@@ -75,82 +75,139 @@ Unauthorized reproduction, distribution, or republication of this material, in w
 
     ![PATCH](images/9.png)  
 
-03. Expand it and find the functions that start with a capital **I**.  
+03. Expand it and find the functions that start with the name **Get**.  
 
     ![PATCH](images/10.png)  
 
-04. As you can see at the bottom of the screenshot above, there are two functions called:  
-    - `isAllowFastbootdByCmdline`  
-    - `isAllowFastbootdByProperty`  
+04. As you can see at the bottom of the screenshot above, there is a called:  
+    - `GetFastbootdPermission`  
 
 **Our goal is to modify these functions so they always return `true`,** which will re-enable **fastbootd** mode!  
 
 
 ### Step 4: Finding the Hex Byte Sequence
 
-01. First, let’s patch the `isAllowFastbootdByCmdline` function.  
+01. Now, let’s begin to patch the `GetFastbootdPermission` function.  
 02. Left-click once on the function name to select it.  
 
     ![PATCH](images/11.png)  
 
-03. In the middle section of the UI, scroll until you find the first instruction set.  
+03. On the right side of the UI, labeled as the `Decompile` view, you can see a `return` value that returns `0`!  
 
     ![PATCH](images/12.png)  
 
-    - The highlighted part is the first instruction set of that function.  
+    - As I said earlier, our goal is to make it always return `1`, which enables the `fastbootd` mode again.  
 
-        ![PATCH](images/13.png)  
+04. Highlight the `return 0` statement in the `Decompile` view.
 
-04. Now, we need to copy the original hex byte sequence!  
+    - This action will highlight the corresponding assembly code in the middle section of the UI, known as the "listing view."
+    - Our goal is to locate an instruction similar to `mov w0, wzr`.
 
-    - Click and hold at the beginning of the first instruction set, then drag the cursor down to select the following instructions until the **Listing** window says `(40 addresses selected)`.  
+05. However, in this case, we don’t see anything similar to `mov w0, wzr`!
 
-    ![PATCH](images/14.png)  
+    ![PATCH](images/13.png)
 
-05. Right-click anywhere in the green highlighted area → **Copy Special** → **Byte String (no spaces)** → **OK**.  
+    - Therefore, we need to investigate further.
+    - In your case, you might easily find the `mov w0, wzr` instruction, but I’ve chosen a harder recovery that isn't easier to patch.  
 
-    - Paste it into a text editor in a format that’s easy for you to read:  
+06. Alternative way to find `mov w0, wzr`
 
-    ![PATCH](images/15.png)  
+    - Try highlighting the code **above** the `return 0` statement.
 
-**This is where the actual patching begins!**
+        ![PATCH](images/14.png)
 
-06. Go back to Ghidra and move your cursor to the first instruction of the function.  
+    - **In my case,** this corresponds to `printf("/system/bin/fastbootd can't be invoked (%s)\n", param1)`.
 
-    ![PATCH](images/16.png)  
+    - **This will display the corresponding instruction set** in the `Listing` view, related to the highlighted section in the `Decompile` view.
 
-07. Right-click on it → select **Patch Instruction**.  
+        ![PATCH](images/15.png)
+
+- **The closest `mov w0, wzr` instruction below the highlighted part should be the target instruction for the `return 0` statement.**  
+
+    ![PATCH](images/16.png)
+    *See..! We successfully located it..*   
+
+---
+
+### Step 5: Extracting the "Original" and "Patched" Hex Byte Sequences
+
+01. First, we need to extract the original hex byte sequence and save it in a text editor for reference.  
+02. To do this, open the **"Bytes: <filename>"** window from the `Window` menu.  
 
     ![PATCH](images/17.png)  
+    *Where it is located.*  
 
-08. Modify the first value (in my case, `sub`) to `mov`, and change the right-hand part to `w0, #1`. Press **Enter**.  
-
-    - It should now look like this:  
     ![PATCH](images/18.png)  
+    *The `Bytes:` window*  
 
-09. For the second instruction set, clear all the existing values and change it to `ret`.  
-    - In my case, the original was `stp x29, x30, [sp, #local_50]`. I replaced `stp` with `ret`. Press **Enter**.  
+03. Go back to the `Decompile` view and **highlight the code linked to the `mov w0, wzr` instruction** (or the code located near that instruction).  
 
-    - The result should be like this:  
     ![PATCH](images/19.png)  
+    *This will automatically highlight the corresponding instructions in the `Listing` view.*  
 
-10. On the right side of Ghidra, you’ll now see that we’ve successfully modified the function to always return `true`.  
+04. Place the red blinking cursor at the end of the `mov w0, wzr` instruction.  
+    Press and hold the left mouse button, then drag upwards until you reach the instruction `bl <EXTERNAL>::printf`.  
 
     ![PATCH](images/20.png)  
+    *Selection starts at `mov w0, wzr` and ends at `bl <EXTERNAL>::printf`.*  
 
-11. Next, copy the patched hex byte sequence.  
+    - Make sure the selected byte size is **8**. It’s okay if it’s slightly larger, but 8 bytes is common for this operation.  
 
-    - Repeat the same process from step **05**, and paste the patched values into your text editor:  
+05. **With that section highlighted,** open the `Bytes:` view and you’ll see the matching "Original" hex byte sequence highlighted there.  
 
     ![PATCH](images/21.png)  
-
-12. Repeat the entire process for the second function, `isAllowFastbootdByProperty`, and paste its patched values into the text editor as well.  
-
-    - The final result should look like this:  
+    *Listing view and Bytes view.*  
 
     ![PATCH](images/22.png)  
+    *Highlighted original hex byte sequence.*  
 
-### Step 5: Applying the Hex Patch
+    - Right-click the highlighted bytes → **Copy Special → Byte String (No spaces)**.  
+    - Paste this copied value into a text editor for safekeeping.  
+
+    ![PATCH](images/23.png)  
+    *Original hex byte sequence saved in a text editor.*  
+
+06. **Now, let’s patch it to always return `1`!**  
+
+    - In the `Listing` view, single-click at the end of the `mov w0, wzr` instruction to place the cursor there.  
+
+    ![PATCH](images/24.png)  
+    *The selected instruction turns a blue-grey shade.*  
+
+    - Right-click and select **Patch Instruction**.  
+
+    ![PATCH](images/25.png)  
+
+    - Remove `wzr` and replace it with `#1`, resulting in:  
+      `mov w0, #1`  
+      Then press **Enter**.  
+
+    ![PATCH](images/26.png)  
+    *Changed from `w0, wzr` to `w0, #0x1`.*  
+
+    - This forces the function’s return value to always be `1`.  
+
+    ![PATCH](images/27.png)  
+    *Now, the `GetFastbootdPermission()` function always returns `1`, regardless of any failed checks mentioned earlier.*  
+
+07. Lastly, let’s get the "Patched" hex byte sequence:  
+
+    - Highlight the patched section from `mov w0, #1` up to `<EXTERNAL>::printf` (bottom to top).  
+
+    ![PATCH](images/28.png)  
+    *Highlighted patched instructions.*  
+
+    - In the `Bytes:` view, right-click → **Copy Special → Byte String (No spaces)**, then paste it into your text editor.  
+
+    ![PATCH](images/29.png)  
+    *Patched bytes in the `Bytes` view.*  
+
+    ![PATCH](images/30.png)  
+    *Patched hex byte sequence saved in the text editor.*  
+
+- **Congratulations! We’ve successfully patched the function and obtained both the original and patched hex byte sequences.**  
+
+### Step 6: Applying the Hex Patch
 
 01. The hard part is done. All that’s left is to apply the hex patches we saved in our text editor.  
 
@@ -184,26 +241,21 @@ Here’s how I patched the `recovery` binary:
 
 ```
 
-ravindu644@ubuntu:/path/to/extracted/recovery/ramdisk/system/bin $ magiskboot hexpatch recovery ff4302d1fd7b04a9fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9 20008052c0035fd6fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9
+ravindu644@ubuntu:/path/to/extracted/recovery/ramdisk/system/bin $ magiskboot hexpatch recovery 86940494e0031f2a 8694049420008052
 
-Patch @ 0x0010C120 [ff4302d1fd7b04a9fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9] -> [20008052c0035fd6fd030191f92b00f9f85f06a9f65707a9f44f08a954d03bd589f9ffd0881640f9]
-
-
-ravindu644@ubuntu:/path/to/extracted/recovery/ramdisk/system/bin $ magiskboot hexpatch recovery ffc301d1fd7b05a9fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8 20008052c0035fd6fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8
-
-Patch @ 0x0010C2E0 [ffc301d1fd7b05a9fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8] -> [20008052c0035fd6fd430191f44f06a954d03bd549048052881640f9e0630091e1030091a8831ff8]
+Patch @ 0x0010C120 [86940494e0031f2a] -> [8694049420008052]
 
 ```
 
 **If it prompted `Patch @ ` like text,** that means our hex patching worked..!
 
-> If it patches **more than 1 Patch**, that means, your patch is not unique. You have to either try to expand the address size (we choose to use 40), or make a more precise patch, targetting a specific instruction, rather than returning the whole function to **true**
+> If it patches **more than 1 Patch**, that means, your patch is not unique. You have to either try to expand the address size (we choose to use 8).
 
 **Now, re-pack the recovery image and see if it worked..!**
 
 ### Final Result:
 
-![PATCH](images/23.jpg)  
+![PATCH](images/31.jpg)  
 
 ---
 

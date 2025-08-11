@@ -27,8 +27,9 @@ fi
 rm -rf "${WDIR}/recovery/"*
 rm -rf "${WDIR}/unpacked/"*
 
-# Define boot_editor's path and aliases
+# Define magiskboot's, boot_editor's path and aliases
 export BOOT_EDITOR="${WDIR}/boot_editor_v15_r1/gradlew"
+export MAGISKBOOT="${WDIR}/binaries/magiskboot"
 alias r_unpack="$BOOT_EDITOR unpack"
 alias r_repack="$BOOT_EDITOR pack"
 alias r_clean="$BOOT_EDITOR clear"

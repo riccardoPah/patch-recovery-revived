@@ -27,15 +27,13 @@ declare -a HEX_PATCHES=(
     "2001597ae0000054:2001597ae1000054"
     "50860494f3031f2a:5086049433008052"
     
-    # One UI 7 - Galaxy A16 5G patches, Issue #4
+    # One UI 7 - Galaxy A16 5G patches, Issue #4 (func. name: GetFastbootdPermission)
     "9b880494e0031f2a:9b88049420008052"
 
-    # Galaxy S24+, Issue #5
-    "3f2303d5ffc301d1fd7b03a9f85f04a9f65705a9f44f06a9fdc3009129:3f2303d520008052c0035fd6f85f04a9f65705a9f44f06a9fdc3009129"
-    "3f2303d5ffc301d1fd7b05a9f33300f9fd43019148:3f2303d520008052c0035fd6f33300f9fd43019148"
-
     # Galaxy S25, Issue #7 (func. name: GetFastbootdPermission)
-    "3f2303d5ff8302d1fd7b05a9f93300f9f85f07a9f65708a9f44f09a9fd43019153:3f2303d520008052c0035fd6f93300f9f85f07a9f65708a9f44f09a9fd43019153"
+    "7abb0594e0031f2a:7abb059420008052"
+
+    # TO-DO: Issue #5
     
     # Add more patches here as needed
     # Format: "search_pattern:replace_pattern"

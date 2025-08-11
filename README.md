@@ -12,10 +12,17 @@ The only working `patch-recovery` tool that ever lived to patch Samsung's recove
 ## Features
 
 - Supports `.img`, `.lz4`, and `.zip` formats as input.
+- Supports both `recovery` and `vendor_boot` images.
 - Automatically downloads and processes recovery images from a provided URL or local path.
 - Hex-patches the recovery binary to enable **fastbootd** mode.
-- Signs the patched recovery image with Google's RSA private test key.
 - Creates an ODIN-flashable `.tar` file for easy flashing.
+
+Notes:
+
+- All the hex patches are located in [this database file](./hex-patches.sh).  
+- On Samsung devices, `vendor_boot` contains the recovery ramdisk, only if the device uses the A/B partition scheme.  
+
+
 
 ---
 

@@ -34,16 +34,12 @@ declare -a HEX_PATCHES=(
     "7abb0594e0031f2a:7abb059420008052"
 
     # Galaxy S24, Issue #5
-
-    # main function
-    #"86940494e0031f2a:8694049420008052"
-
-    # cmdline
+    "86940494e0031f2a:8694049420008052"
     "2c940494f3031f2a:2c94049433008052"
-
-    # property
-    #"7f020071e0179f1a:7f02007120008052"
     
+    # Galaxy S23fe
+    "a81640f9a9835ff81f0109eb21010054e003142a:a81640f9a9835ff81f0109eb2101005420008052"
+
     # Add more patches here as needed
     # Format: "search_pattern:replace_pattern"
 )
